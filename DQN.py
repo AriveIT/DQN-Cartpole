@@ -7,7 +7,7 @@ from buffer import ReplayBuffer
 from model import Model
 
 # Tensorflow if you're using tensorflow
-import tensorflow as tf
+# import tensorflow as tf
 
 # pytorch if you're using pytorch
 import torch
@@ -17,16 +17,16 @@ class DQNAgent():
             self.output_dims = output_dims
             self.input_dims = input_dims
             #self.observation_space = observation_space
+            self.update_target_counter = 0
+            self.model = Model(input_dims, output_dims)
+            self.target_model = Model(input_dims, output_dims)
 
-            #self.model = 
-            #self.target_model = 
+            self.replay_memory = ReplayBuffer()            
 
-            #self.replay_memory =             
-
-            #self.optimizer =
+            #self.optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
 
             # this is only important if you're using pytorch. it speeds things up. alot. 
-            #self.device = 
+            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # Method for predicting an action 
     def get_action(self, state) -> int:
@@ -57,15 +57,16 @@ class DQNAgent():
         loss = 0
         # We just pass through the learn function if the batch size has not been reached. 
         #if self.replay_memory.__len__() < BUFFER_BATCH_SIZE:
-        #    return
+            #return
 
         state = []
         action = []
         reward = []
         next_state = []
         #for _ in range(BATCH_SIZE):
-        #    s, a, r, n = self.replay_memory.collect_memory()
+            #s, a, r, n = self.replay_memory.collect_memory()
             # append to lists above probably
+            #State Action Reward New State
 
         # Convert list of tensors to tensor.
 
@@ -81,9 +82,9 @@ class DQNAgent():
 
         # Calculate MSE Loss
 
-        # backward pass
+        # backward pass via backpropagation
 
-        # self.update_target_counter += 1
+        self.update_target_counter += 1
 
         #if self.update_target_counter % TARGET_UPDATE == 0:
             # update
@@ -92,7 +93,7 @@ class DQNAgent():
 
     def save(self, save_to_path: str) -> None:
         # if pytorch
-        #torch.save(self.target_model.state_dict(), save_to_path)
+        torch.save(self.target_model.state_dict(), save_to_path)
         pass
 
     def load(self, load_path: str) -> None:
@@ -102,8 +103,8 @@ class DQNAgent():
         #loaded_model = tf.keras.models.load_model(load_path)
 
         # if pytorch
-        #self.target_model.load_state_dict(torch.load(load_path))
-        #self.model.load_state_dict(torch.load(load_path))
+        self.target_model.load_state_dict(torch.load(load_path))
+        self.model.load_state_dict(torch.load(load_path))
 
         pass
 
