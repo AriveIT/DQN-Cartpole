@@ -17,6 +17,7 @@ input_dims = 4
 output_dims = 2
 # likely want to put in some other cool things here like batch size, learning rate, etc. 
 episodes = 0
+EPSILON = 0.1 # exploit vs explore ratio
 
 # Global Constants, change these
 MAX_EPISODES = 1
@@ -38,7 +39,12 @@ if __name__ == "__main__":
         while not done:
             
             # Get action, ideally through your agent
-            action = agent.get_action(observation.reshape(1,4))
+            random = np.random.rand()
+
+            if random > EPSILON:
+                action = env.action_space.sample()
+            else:
+                action = agent.get_action(observation.reshape(1,4))
             
             # Take the action and observe the result
             new_observation, reward, terminated, trunicated, info = env.step(action)
@@ -61,6 +67,8 @@ if __name__ == "__main__":
             env.render()
         
         episodes += 1
+        if EPSILON < 0.9:
+            EPSILON += 0.005
     # TODO: Check if reward normalization makes sense!
     # agent.save()
     env.close()
