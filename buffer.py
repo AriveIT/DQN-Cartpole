@@ -13,19 +13,22 @@ class ReplayBuffer():
 
     '''
     def __init__(self):
+        self.buffer_queue = deque()
         return
 
     def store_memory(self, experience: tuple):
+        self.buffer_queue.append(experience)
         return
 
     def collect_memory(self):
         return 
         
     def erase_memory(self):
+        self.buffer_queue.clear()
         return
     
     def __len__(self):
-        return
+        return len(self.buffer_queue)
 
 
 if __name__ == "__main__":

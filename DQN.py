@@ -12,16 +12,17 @@ import tensorflow as tf
 # pytorch if you're using pytorch
 import torch
 
+BUFFER_BATCH_SIZE = 300
+
 class DQNAgent():
     def __init__(self, input_dims, output_dims):
             self.output_dims = output_dims
             self.input_dims = input_dims
             #self.observation_space = observation_space
 
-            #self.model = 
-            #self.target_model = 
-
-            #self.replay_memory =             
+            self.model = Model() # the model we run through the environment
+            self.target_model = Model() # the model that we train
+            self.replay_memory = ReplayBuffer()
 
             #self.optimizer =
 
@@ -40,7 +41,7 @@ class DQNAgent():
         or it can be inputted into this function as a tensor already. 
         mostly fashion. do what you please.
         '''
-        action = 0
+        action = np.argmax(self.model(state))
         return action
     
     def learn(self) -> float:
@@ -56,20 +57,29 @@ class DQNAgent():
         '''
         loss = 0
         # We just pass through the learn function if the batch size has not been reached. 
-        #if self.replay_memory.__len__() < BUFFER_BATCH_SIZE:
-        #    return
+        if self.replay_memory.__len__() < BUFFER_BATCH_SIZE:
+            return
 
         state = []
         action = []
         reward = []
         next_state = []
-        #for _ in range(BATCH_SIZE):
-        #    s, a, r, n = self.replay_memory.collect_memory()
+        for _ in range(self.replay_memory.__len__()):
+            s, a, r, n = self.replay_memory.collect_memory()
+            
             # append to lists above probably
+            state.append(s)
+            action.append(a)
+            reward.append(r)
+            next_state.append(n)
 
         # Convert list of tensors to tensor.
+        observation_tensor = [state, action, reward, next_state] # why do we do this? i dont think this is what's intended
 
         # One hot encoding our actions. 
+        one_hot_actions = np.zeros((len(action),2))
+        for i, action in enumerate(action):
+            one_hot_actions[i][action] = 1
 
         # Find our predictions
         

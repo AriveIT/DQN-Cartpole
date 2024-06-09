@@ -9,12 +9,7 @@ import pygame
 import torch
 import tensorflow as tf
 
-# all of the libraries above can be installed with pip
-# ex: pip install numpy or pip install torch
-
-
-#from DQN import DQNAgent
-
+from DQN import DQNAgent
 
 
 # Hyperparams
@@ -29,10 +24,9 @@ MAX_EPISODES = 1
 
 if __name__ == "__main__":
     env = gym.make('CartPole-v1', render_mode='human')
-    # agnet = DQNAgent(input_dims, output_dims)
+    agent = DQNAgent(input_dims, output_dims)
 
-    # Make the main game loop.  
-
+    # Make the main game loop
     while episodes < MAX_EPISODES:
         time_step = 0
         rewards = []
@@ -43,21 +37,22 @@ if __name__ == "__main__":
 
         while not done:
             
-            
             # Get action, ideally through your agent
-            action = env.action_space.sample()
+            action = agent.get_action(observation.reshape(1,4))
             
             # Take the action and observe the result
-            observation, reward, terminated, trunicated, info = env.step(action)
+            new_observation, reward, terminated, trunicated, info = env.step(action)
             
             # Accumulate the reward
+            rewards.append(reward)
 
             # Check if we lost
             if terminated or trunicated:
                 done = True
 
-
-            # Store our memory
+            # Store our memory 
+            agent.replay_memory.store_memory(observation, action, reward, new_observation)
+            observation = new_observation
 
             # learn?
             #agent.learn()
@@ -65,6 +60,7 @@ if __name__ == "__main__":
 
             env.render()
         
+        episodes += 1
     # TODO: Check if reward normalization makes sense!
     # agent.save()
     env.close()
