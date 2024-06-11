@@ -33,21 +33,33 @@ if __name__ == "__main__":
 
     # Make the main game loop.  
 
+    # Total training cycles loop (episode: current training cycle || MAX_EPISODE: Total training iterations)
     while episodes < MAX_EPISODES:
-        time_step = 0
-        rewards = []
-        #agent.replay_memory.erase_memory()
-        observation, info = env.reset()
-        time_step = 0
-        done = False
+        # resetting for each episode
 
+        time_step = 0 #Steps taken in the particular episode
+        rewards = [] # reward list for each episode
+        
+        #agent.replay_memory.erase_memory()
+
+        # Setting the environment to the intial state at the beginnign of each episode
+        observation, info = env.reset() # observation: initial state of the environment || info: any other additional info
+        time_step = 0
+        done = False #flag to be used in the while loop which tells us if the episode has ended or not.
+
+        # runs until the episode doesnt end/terminate/truncate 
+        # Runs to process each time step of the episode
         while not done:
             
-            
-            # Get action, ideally through your agent
+            # Get a random action from the environment (gym), ideally through your agent
             action = env.action_space.sample()
             
             # Take the action and observe the result
+            # Observation: New state of the environment after the action is taken
+            # Reward: 
+            # terminated: boolean flag if the episode ended because goal was reached or agent failed
+            # truncated: boolean flag indicating if ended due to time limit or other constraint
+            # info: additional info by the env
             observation, reward, terminated, trunicated, info = env.step(action)
             
             # Accumulate the reward
