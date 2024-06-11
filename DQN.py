@@ -7,7 +7,7 @@ from buffer import ReplayBuffer
 from model import Model
 
 # Tensorflow if you're using tensorflow
-import tensorflow as tf
+# import tensorflow as tf
 
 # pytorch if you're using pytorch
 import torch
@@ -18,8 +18,8 @@ class DQNAgent():
             self.input_dims = input_dims
             #self.observation_space = observation_space
 
-            #self.model = 
-            #self.target_model = 
+            self.model = Model(input_dims,output_dims)
+            self.target_model = Model(input_dims,output_dims)
 
             #self.replay_memory =             
 

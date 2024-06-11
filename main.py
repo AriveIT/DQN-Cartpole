@@ -7,13 +7,13 @@ import gym
 import pygame
 
 import torch
-import tensorflow as tf
+# import tensorflow as tf
 
 # all of the libraries above can be installed with pip
 # ex: pip install numpy or pip install torch
 
 
-#from DQN import DQNAgent
+from DQN import DQNAgent
 
 
 
@@ -29,7 +29,7 @@ MAX_EPISODES = 1
 
 if __name__ == "__main__":
     env = gym.make('CartPole-v1', render_mode='human')
-    # agnet = DQNAgent(input_dims, output_dims)
+    agnet = DQNAgent(input_dims, output_dims)
 
     # Make the main game loop.  
 

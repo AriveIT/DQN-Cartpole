@@ -8,8 +8,8 @@ import torch.nn.functional as F
 # exact same architecture otherwise you cannot copy the weights between them.
 
 class Model(nn.Module):
-    def Model(self,n_observation=4, n_actions=2):
-        super().Model()
+    def __init__(self,n_observation=4, n_actions=2):
+        super(Model,self).__init__()
         self.fc1 = nn.Linear(n_observation,128)
         self.fc2 = nn.Linear(128,128)
         self.fc3 = nn.Linear(128,128)
