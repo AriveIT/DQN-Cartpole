@@ -40,7 +40,9 @@ class DQNAgent():
         or it can be inputted into this function as a tensor already. 
         mostly fashion. do what you please.
         '''
-        action = 0
+        state = torch.tensor(state,dtype=torch.float32).to(self.device)
+        q_values = self.model(state)
+        action = torch.argmax(q_values).item()
         return action
     
     def learn(self) -> float:
