@@ -32,7 +32,7 @@ MAX_EPISODES = 1
 
 if __name__ == "__main__":
     env = gym.make('CartPole-v1', render_mode='human')
-    agent = DQNAgent(input_dims, output_dims)
+    agent = DQNAgent(input_dims, output_dims,env.action_space)
 
     # Make the main game loop.  
 

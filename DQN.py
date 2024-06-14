@@ -13,6 +13,7 @@ from model import Model
 import torch
 episodes = 0
 BATCH_SIZE = 32
+BUFFER_BATCH_SIZE = 1000
 learning_rate = 0.00025
 GAMMA = 0.99
 rho = 0.95
@@ -20,17 +21,17 @@ EPSILON = 0.01
 TARGET_UPDATE = 15
 
 class DQNAgent():
-    def __init__(self, input_dims, output_dims):
+    def __init__(self, input_dims, output_dims,observation_space):
             self.output_dims = output_dims
             self.input_dims = input_dims
-            #self.observation_space = observation_space
+            self.observation_space = observation_space
             self.update_target_counter = 0
             self.model = Model(input_dims, output_dims)
             self.target_model = Model(input_dims, output_dims)
 
             self.replay_memory = ReplayBuffer()            
 
-            #self.optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
+            self.optimizer = torch.optim.Adam(self.model.parameters(), lr=learning_rate)
 
             # this is only important if you're using pytorch. it speeds things up. alot. 
             self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -67,8 +68,8 @@ class DQNAgent():
         '''
         loss = 0
         # We just pass through the learn function if the batch size has not been reached. 
-        #if self.replay_memory.__len__() < BUFFER_BATCH_SIZE:
-            #return
+        if self.replay_memory.__len__() < BUFFER_BATCH_SIZE:
+            return
 
         state = []
         action = []

@@ -12,10 +12,10 @@ def Model(input_dims, output_dims):
     especially for cartpole, like, 2 dense, an output, and no convolutions 
     should be more than enough.'''
     model = torch.nn.Sequential(
-            torch.nn.Linear(input_dims, 128, dtype=torch.float32),
+            torch.nn.Linear(input_dims, 32, dtype=torch.float32),
             torch.nn.ReLU(),
-            torch.nn.Linear(128, 128, dtype=torch.float32),
+            torch.nn.Linear(32, 32, dtype=torch.float32),
             torch.nn.ReLU(),
-            torch.nn.Linear(128, output_dims, dtype=torch.float32),
+            torch.nn.Linear(32, output_dims, dtype=torch.float32),
     )
     return model
