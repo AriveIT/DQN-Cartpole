@@ -53,6 +53,7 @@ if __name__ == "__main__":
             observation, reward, terminated, trunicated, info = env.step(action)
             
             # Accumulate the reward
+            rewards.append(reward)
 
             # Check if we lost
             if terminated or trunicated:
@@ -60,6 +61,7 @@ if __name__ == "__main__":
 
 
             # Store our memory
+            agent.replay_memory.store_memory((observation, action, reward, terminated))
 
             # learn?
             agent.learn()
@@ -68,5 +70,5 @@ if __name__ == "__main__":
             env.render()
         
     # TODO: Check if reward normalization makes sense!
-    # agent.save()
+    agent.save()
     env.close()
