@@ -84,5 +84,5 @@ if __name__ == "__main__":
     plt.show()
         
     # TODO: Check if reward normalization makes sense!
-    agent.save()
+    agent.save('savedData.txt')
     env.close()

@@ -49,7 +49,9 @@ class DQNAgent():
         or it can be inputted into this function as a tensor already. 
         mostly fashion. do what you please.
         '''
-        action = 0
+        state = torch.tensor(state,dtype=torch.float32).to(self.device)
+        q_values = self.model(state)
+        action = torch.argmax(q_values).item()
         return action
 
     def learn(self) -> float:
@@ -87,17 +89,22 @@ class DQNAgent():
         reward = torch.tensor(reward, dtype=torch.float32)
         next_state = torch.tensor(next_state, dtype=torch.float32)
         # One hot encoding our actions. 
-        action = torch.nn.functional.one_hot(action, num_classes=self.output_dims)
+        #action = torch.nn.functional.one_hot(action, num_classes=self.output_dims)
         
         # Find our predictions
         
-        # Get the training model assessed Q value of the current turn. 
+
+        # Get the training model assessed Q value of the current turn.
+
 
         # get max value
 
+
         # Calculate our target
 
+
         # Calculate MSE Loss
+
 
         # backward pass
 
