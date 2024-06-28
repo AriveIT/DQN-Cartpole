@@ -12,17 +12,19 @@ from model import Model
 # pytorch if you're using pytorch
 import torch
 REPLAY_BUFFER_MAX_LENGTH = 100000
-BUFFER_BATCH_SIZE = 64
-BATCH_SIZE = 32
+BATCHES = 4
+BATCH_SIZE = 120
+BUFFER_BATCH_SIZE = BATCH_SIZE*BATCHES
 GAMMA = 0.99
-TARGET_UPDATE = 32
-EPSILON_START = 0.5
-EPSILON_END = 0.01
-EPSIOLON_DECAY = 0.0000008
+TARGET_UPDATE = 6
+EPSILON_START = 1.0
+EPSILON_END = 0.1
+EPSIOLON_DECAY = 0.025
 LR = 1e-4
 
 class DQNAgent():
     def __init__(self, input_dims, output_dims):
+        self.EPSILON = EPSILON_START
         self.output_dims = output_dims
         self.input_dims = input_dims
         #self.observation_space = observation_space
@@ -32,7 +34,7 @@ class DQNAgent():
         
         self.replay_memory = ReplayBuffer()     
 
-        #self.optimizer = torch.optim.Adam(self.model.parameters(), lr=LR)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=LR)
 
         # this is only important if you're using pytorch. it speeds things up. alot. 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -52,6 +54,8 @@ class DQNAgent():
         state = torch.tensor(state,dtype=torch.float32).to(self.device)
         q_values = self.model(state)
         action = torch.argmax(q_values).item()
+        if np.random.rand(1) < self.EPSILON :
+            action = rnd.choice([0,1])
         return action
 
     def learn(self) -> float:
@@ -65,54 +69,64 @@ class DQNAgent():
 
         it returns a tuple in case you want to keep track of your losses (you do)
         '''
-        loss = 0
         # We just pass through the learn function if the batch size has not been reached. 
         if self.replay_memory.__len__() < BUFFER_BATCH_SIZE:
             return
 
-        state = []
-        action = []
-        reward = []
-        next_state = []
-        for _ in range(self.replay_memory.__len__()):
+        state, action, reward, next_state = self.replay_memory.collect_memory()
+        action = torch.tensor(action)
+        reward = torch.tensor(reward)
+        for _ in range(self.replay_memory.__len__()-1):
             s, a, r, n = self.replay_memory.collect_memory()
 
             # append to lists above probably
-            state.append(s)
-            action.append(a)
-            reward.append(r)
-            next_state.append(n)
+            torch.stack((state, s))
+            torch.stack((action,torch.tensor(a)))
+            torch.stack((reward,torch.tensor(r)))
+            torch.stack((next_state,n))
 
         # Convert list of tensors to tensor.
+
         state = torch.tensor(state, dtype=torch.float32)
-        action = torch.tensor(action, dtype=torch.float32)
+        action = torch.tensor(action)
         reward = torch.tensor(reward, dtype=torch.float32)
         next_state = torch.tensor(next_state, dtype=torch.float32)
         # One hot encoding our actions. 
-        #action = torch.nn.functional.one_hot(action, num_classes=self.output_dims)
         
+        action = torch.nn.functional.one_hot(action, num_classes=self.output_dims)
         # Find our predictions
-        
+        prediction = self.model(state)
 
         # Get the training model assessed Q value of the current turn.
-
+        target = self.target_model(next_state) 
 
         # get max value
+        max_value = torch.max(target)
 
 
         # Calculate our target
+        target = reward + GAMMA * max_value
 
 
         # Calculate MSE Loss
+        loss = torch.nn.functional.mse_loss(prediction, target)
 
 
         # backward pass
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
 
         self.update_target_counter += 1
 
         if self.update_target_counter % TARGET_UPDATE == 0:
             #update
-            x = 1
+            if self.EPSILON  > EPSILON_END:
+                self.EPSILON  -= EPSIOLON_DECAY
+            model_dic = self.model.state_dict()
+            self.target_model.load_state_dict(model_dic)
+            print("epsilon: ", self.EPSILON )
+
 
         return loss 
 

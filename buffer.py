@@ -32,7 +32,7 @@ class ReplayBuffer():
         return
     
     def __len__(self):
-        return self.size
+        return len(self.memory)
 
 
 if __name__ == "__main__":
