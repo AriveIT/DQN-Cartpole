@@ -94,7 +94,7 @@ class DQNAgent():
 
     def save(self, save_to_path: str) -> None:
         # if pytorch
-        #torch.save(self.target_model.state_dict(), save_to_path)
+        torch.save(self.target_model.state_dict(), save_to_path)
         pass
 
     def load(self, load_path: str) -> None:
@@ -104,8 +104,8 @@ class DQNAgent():
         #loaded_model = tf.keras.models.load_model(load_path)
 
         # if pytorch
-        #self.target_model.load_state_dict(torch.load(load_path))
-        #self.model.load_state_dict(torch.load(load_path))
+        self.target_model.load_state_dict(torch.load(load_path))
+        self.model.load_state_dict(torch.load(load_path))
 
         pass
 
