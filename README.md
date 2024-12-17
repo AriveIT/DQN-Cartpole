@@ -14,7 +14,7 @@ model.py: model initialization
 ```
 input_dims = 4 # size of observation/state  
 output_dims = 2 # action space  
-TARGET_UPDATE = 5 # frequency of updating weights (# trains before update)  
+TARGET_UPDATE = 5 # frequency of updating weights (# trains before updating target model)  
 DISCOUNT = 1 # aka gamma 
 ```
 
