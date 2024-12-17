@@ -1,42 +1,33 @@
-import numpy as np
 import random as rnd
 from collections import deque
 
 class ReplayBuffer():
-    '''
-    This is the replay buffer method for the DQN model. 
-
-    No code is in it other than the functions because I'm curious to see various implementations
-    one thing to note, memories almost always come in the SARS' format. That is 
-    Experience = (state, action, reward, new_state)
-
-
-    '''
-    def __init__(self):
-        self.buffer_queue = deque()
+    def __init__(self, buffer_max_size):
+        self.buffer_deque_0 = deque()
+        self.buffer_deque_1 = deque()
+        self.BUFFER_MAX_SIZE = buffer_max_size
         return
 
     def store_memory(self, experience: tuple):
-        self.buffer_queue.append(experience)
+        action = experience[1]
+
+        if action == 0:
+            self.buffer_deque_0.append(experience)
+            if len(self.buffer_deque_0) > self.BUFFER_MAX_SIZE / 2: self.buffer_deque_0.popleft()
+        elif action == 1:
+            self.buffer_deque_1.append(experience)
+            if len(self.buffer_deque_1) > self.BUFFER_MAX_SIZE / 2: self.buffer_deque_1.popleft()
         return
 
-    def collect_memory(self):
-        return 
+    def collect_memory(self, batch_size):
+        a = rnd.sample(list(self.buffer_deque_0), batch_size // 2)
+        a.extend(rnd.sample(list(self.buffer_deque_1), batch_size // 2))
+        return a
         
     def erase_memory(self):
-        self.buffer_queue.clear()
+        self.buffer_deque_0.clear()
+        self.buffer_deque_1.clear()
         return
     
     def __len__(self):
-        return len(self.buffer_queue)
-
-
-if __name__ == "__main__":
-    '''
-    For those unfamiliar with this format, this is so that if you want to run this file
-    instead of the main.py file to test this file specifically, everything in this block will be run.
-    So, if you had a print statement outside of this block and called functions or classes,
-    they will be ignored. 
-    '''
-    buffer = ReplayBuffer()
-    print('cool new buffer!')
+        return len(self.buffer_deque_0) + len(self.buffer_deque_1)

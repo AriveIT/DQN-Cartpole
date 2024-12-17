@@ -9,126 +9,90 @@ from model import Model
 # Tensorflow if you're using tensorflow
 import tensorflow as tf
 
-# pytorch if you're using pytorch
-import torch
-
-BUFFER_BATCH_SIZE = 300
-
 class DQNAgent():
-    def __init__(self, input_dims, output_dims):
-            self.output_dims = output_dims
-            self.input_dims = input_dims
-            #self.observation_space = observation_space
+    def __init__(
+        self,
+        input_dims,
+        output_dims,
+        target_update,
+        discount,
+        buffer_max_size,
+        buffer_size_min,
+        batch_size
+    ):
+        self.output_dims = output_dims
+        self.input_dims = input_dims
 
-            self.model = Model() # the model we run through the environment
-            self.target_model = Model() # the model that we train
-            self.replay_memory = ReplayBuffer()
+        self.BUFFER_SIZE_MIN = buffer_size_min
+        self.BATCH_SIZE = batch_size
+        self.TARGET_UPDATE = target_update
+        self.DISCOUNT = discount
 
-            #self.optimizer =
+        self.model = Model(input_dims, output_dims) # the model we run through the environment
+        self.target_model = Model(input_dims, output_dims) # the model that we train
+        self.replay_memory = ReplayBuffer(buffer_max_size)
 
-            # this is only important if you're using pytorch. it speeds things up. alot. 
-            #self.device = 
+        self.update_target_counter = 0
 
     # Method for predicting an action 
     def get_action(self, state) -> int:
-        ''' 
-        Get action function call.
-        Ideally your state is processed by your target network. 
-
-        Your state can be inputted into this function as an array/tuple, in which case
-        needs to be turned into a tensor before being inputted into your network.
-
-        or it can be inputted into this function as a tensor already. 
-        mostly fashion. do what you please.
-        '''
-        action = np.argmax(self.model(state))
-        return action
+        return np.argmax(self.model(state.reshape(1,4)))
     
     def learn(self) -> float:
-        ''' 
-        This function will be the source of 90% of your problems at the
-        start. this is where the magic happens. it's also where the tears happen.
-
-        ask questions. please.
-
-        I'll leave a lot more things up here to make it less painful.
-
-        it returns a tuple in case you want to keep track of your losses (you do)
-        '''
-        loss = 0
         # We just pass through the learn function if the batch size has not been reached. 
-        if self.replay_memory.__len__() < BUFFER_BATCH_SIZE:
+        if self.replay_memory.__len__() < self.BUFFER_SIZE_MIN:
             return
 
-        state = []
-        action = []
-        reward = []
-        next_state = []
-        for _ in range(self.replay_memory.__len__()):
-            s, a, r, n = self.replay_memory.collect_memory()
+        memories = self.replay_memory.collect_memory(self.BATCH_SIZE)
+        states = []
+        actions = []
+        rewards = []
+        next_states = []
+        terminateds = []
+
+        # split memories into separate lists
+        for memory in memories:
+            s, a, r, n, t = memory
             
-            # append to lists above probably
-            state.append(s)
-            action.append(a)
-            reward.append(r)
-            next_state.append(n)
-
-        # Convert list of tensors to tensor.
-        observation_tensor = [state, action, reward, next_state] # why do we do this? i dont think this is what's intended
-
-        # One hot encoding our actions. 
-        one_hot_actions = np.zeros((len(action),2))
-        for i, action in enumerate(action):
-            one_hot_actions[i][action] = 1
+            states.append(s)
+            actions.append(a)
+            rewards.append(r)
+            next_states.append(n)
+            terminateds.append(t)
 
         # Find our predictions
-        
-        # Get the training model assessed Q value of the current turn. 
+        input = np.array(states).reshape(self.BATCH_SIZE, 4)
+        predictions = self.target_model(input)
 
-        # get max value
+        input = np.array(next_states).reshape(self.BATCH_SIZE, 4)
+        next_state_predictions = self.target_model(input)
+        
+        # get max value of next state
+        next_state_max_q_values = np.amax(next_state_predictions, 1)
 
         # Calculate our target
-
-        # Calculate MSE Loss
+        targets = tf.Variable(predictions).numpy() # change to numpy so we can edit values
+        for i in range(self.BATCH_SIZE):
+            action = actions[i]
+            if terminateds[i]:
+                targets[i][action] = -1
+            else:
+                targets[i][action] = rewards[i] + self.DISCOUNT * next_state_max_q_values[i]
 
         # backward pass
+        history = self.target_model.fit(np.array(states), targets, epochs=3, batch_size=self.BATCH_SIZE, verbose=0)
 
-        # self.update_target_counter += 1
+        self.update_target_counter += 1
 
-        #if self.update_target_counter % TARGET_UPDATE == 0:
-            # update
+        if self.update_target_counter % self.TARGET_UPDATE == 0:
+            self.model.set_weights(self.target_model.get_weights())
 
-        return loss 
+        return history.history['loss'] 
 
     def save(self, save_to_path: str) -> None:
-        # if pytorch
-        #torch.save(self.target_model.state_dict(), save_to_path)
         pass
 
     def load(self, load_path: str) -> None:
-
-        # if tensorflow
         #loaded_target = tf.keras.models.load_model(load_path)
         #loaded_model = tf.keras.models.load_model(load_path)
-
-        # if pytorch
-        #self.target_model.load_state_dict(torch.load(load_path))
-        #self.model.load_state_dict(torch.load(load_path))
-
         pass
-
-
-
-
-if __name__ == "__main__":
-    '''
-    For those unfamiliar with this format, this is so that if you want to run this file
-    instead of the main.py file to test this file specifically, everything in this block will be run.
-    So, if you had a print statement outside of this block and called functions or classes,
-    they will be ignored. 
-    '''
-    input_dims = 4
-    output_dims = 2
-    buffer = DQNAgent(input_dims, output_dims)
-    print('dqn agent')
-
