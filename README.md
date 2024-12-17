@@ -4,9 +4,9 @@ This project implements a **Deep Q-Network (DQN)** using **TensorFlow** to solve
 The CartPole problem requires an agent to balance a pole on a cart by applying forces to the left or right.
 
 # Files
-buffer.py: store memories, consisting of a (state, action, reward, next state, terminated)\\
-DQN.py: learn function\\
-main.py: set up, and train loop\\
+buffer.py: store memories, consisting of a (state, action, reward, next state, terminated)  
+DQN.py: learn function  
+main.py: set up, and train loop  
 model.py: model initialization
 
 # Hyperparameters:
