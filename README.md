@@ -27,4 +27,4 @@ EPSILON_MIN = 0.05
 MAX_EPISODES = 4000
 
 # Results
-After training, the agent should be able to balance the pole for **500 time steps** consistently.
+After training, the agent was able to balance the pole upright for **500 time steps**
