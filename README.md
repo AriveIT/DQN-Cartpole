@@ -9,7 +9,7 @@ DQN.py: learn function
 main.py: set up, and train loop  
 model.py: model initialization
 
-# Hyperparameters:
+# Hyperparameters
 **For learning**  
 input_dims = 4 # size of observation/state  
 output_dims = 2 # action space  
